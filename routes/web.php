@@ -28,11 +28,12 @@ Route::middleware(['auth', InitializeTenantContext::class])->group(function () {
         dd([
             "user" => $context->user()->toArray(),
             "tenant" => $context->tenant()->toArray(),
-            "tenantId" => $context->tenantId(),
+            "tenant_id" => $context->tenantId(),
             "role" => $context->role(),
             "isSuperAdministrator" => $context->isSuperAdministrator()
 
         ]);
+
     })->name('teste');
 
     Route::get('/heuder', function () {
