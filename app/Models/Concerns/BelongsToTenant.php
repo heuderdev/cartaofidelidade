@@ -7,39 +7,33 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 
+/**
+ * @mixin Model
+ */
 trait BelongsToTenant
 {
     protected static function bootBelongsToTenant(): void
     {
-        static::addGlobalScope(
-            'tenant',
-            function (Builder $builder): void {
-                $context = app(
-                    TenantContextService::class
-                );
+        static::addGlobalScope('tenant', function (Builder $builder): void {
+                $context = app(TenantContextService::class);
 
                 if ($context->isSuperAdministrator()) {
                     return;
                 }
 
                 if (!$context->hasTenant()) {
-                    throw new RuntimeException(
-                        'Tenant não definido no contexto.'
-                    );
+                    throw new RuntimeException( 'Tenant não definido no contexto.');
                 }
 
                 $builder->where(
-                    $builder->getModel()
-                        ->qualifyColumn('tenant_id'),
+                    $builder->getModel()->qualifyColumn('tenant_id'),
                     $context->tenantId()
                 );
             }
         );
 
         static::creating(function (Model $model): void {
-            $context = app(
-                TenantContextService::class
-            );
+            $context = app(TenantContextService::class);
 
             if ($context->isSuperAdministrator()) {
                 throw new RuntimeException(
@@ -54,9 +48,7 @@ trait BelongsToTenant
         });
 
         static::updating(function (Model $model): void {
-            $context = app(
-                TenantContextService::class
-            );
+            $context = app(TenantContextService::class);
 
             if ($context->isSuperAdministrator()) {
                 return;

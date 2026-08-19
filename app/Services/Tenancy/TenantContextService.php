@@ -4,7 +4,6 @@ namespace App\Services\Tenancy;
 
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use RuntimeException;
 
 class TenantContextService
