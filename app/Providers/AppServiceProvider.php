@@ -2,12 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\Subscription;
+use App\Models\Tenant;
 use App\Services\Tenancy\TenantContextService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Cashier::useCustomerModel(Tenant::class);
+        Cashier::useSubscriptionModel(Subscription::class);
         $this->configureDefaults();
     }
 

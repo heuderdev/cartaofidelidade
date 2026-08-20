@@ -17,7 +17,7 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete();
 
-            $table->string('role');
+            $table->enum('role', ['super_administrador', 'owner', 'administrador', 'employee', 'cliente']);
 
             $table->string('status')
                 ->default('active');
