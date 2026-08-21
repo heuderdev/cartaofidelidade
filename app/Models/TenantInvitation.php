@@ -29,7 +29,9 @@ class TenantInvitation extends Model
 
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(
+            Tenant::class
+        );
     }
 
     public function inviter(): BelongsTo
@@ -57,8 +59,8 @@ class TenantInvitation extends Model
 
     public function isUsable(): bool
     {
-        return !$this->isExpired()
-            && !$this->isAccepted()
-            && !$this->isRevoked();
+        return ! $this->isExpired()
+            && ! $this->isAccepted()
+            && ! $this->isRevoked();
     }
 }

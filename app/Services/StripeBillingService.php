@@ -18,8 +18,8 @@ class StripeBillingService
         abort_unless($priceId, 500, 'Stripe Price ID não configurado.');
 
         if ($tenant->hasActiveBilling()) {
-            dd('x');
-            return redirect()->route('portal');
+            return redirect()->route('dashboard')
+                ->with('info', 'Você já possui uma assinatura ativa.');
         }
 
         $this->prepareCustomer($tenant);

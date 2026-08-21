@@ -1,14 +1,13 @@
 <?php
 
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\TenantInvitationController;
 use App\Http\Middleware\EnsureTenantEmployeeHasActiveTenant;
 use App\Http\Middleware\EnsureTenantOwnerHasActiveBilling;
-use App\Http\Middleware\InitializeTenantContext;
 use App\Http\Middleware\ResolveDefaultTenant;
 use App\Models\Exemplo;
 use App\Services\Tenancy\TenantContextService;
 use Illuminate\Support\Facades\Route;
-
 
 Route::view('/', 'welcome')->name('home');
 
@@ -46,7 +45,7 @@ Route::middleware([
 
         dd([
             "user" => $context->user()->toArray(),
-            "tenant" => $context->tenant()->isSubscribed(),
+            "tenant" => $context->tenant()?->toArray(),
             "tenant_id" => $context->tenantId(),
             "role" => $context->role(),
             "isSuperAdministrator" => $context->isSuperAdministrator()
@@ -54,14 +53,9 @@ Route::middleware([
         ]);
     })->name('teste');
 
-    Route::get('/heuder', function () {
-
-        Exemplo::query()->get();
-
-
-
-        Route::view('dashboard', 'dashboard')->name('dashboard2');
-    });
+    Route::get("/invitation",[TenantInvitationController::class, 'index'])->name('tenant-invitation.index');
+    Route::get('/invitation/{invitation}/accept/{token}', [TenantInvitationController::class, 'accept'])->name('tenant-invitation.accept');
+    Route::post('/invitation/{invitation}/accept/{token}',[TenantInvitationController::class, 'confirm'])->middleware('auth')->name('tenant-invitation.confirm');
 });
 
 Route::get("/new", function () {
@@ -69,6 +63,6 @@ Route::get("/new", function () {
 
         $tenant->update([
             'billing_access_granted' => true,
-            'billing_access_granted_until' => now()->setTime(23, 50),
+            'billing_access_granted_until' => null,
         ]);
 });

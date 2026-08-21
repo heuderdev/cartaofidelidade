@@ -12,6 +12,10 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Cashier\Cashier;
 
+use App\Http\Middleware\ResolveDefaultTenant;
+use Livewire\Livewire;
+use Illuminate\Support\Facades\Route;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -30,6 +34,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Livewire::setUpdateRoute(function ($handle) {
+            return Route::post('/livewire/update',$handle)->middleware([
+                'web',
+                'auth',
+                ResolveDefaultTenant::class,
+            ]);
+        });
+
         Cashier::useCustomerModel(Tenant::class);
         Cashier::useSubscriptionModel(Subscription::class);
         $this->configureDefaults();
