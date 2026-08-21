@@ -5,7 +5,6 @@ use App\Http\Controllers\TenantInvitationController;
 use App\Http\Middleware\EnsureTenantEmployeeHasActiveTenant;
 use App\Http\Middleware\EnsureTenantOwnerHasActiveBilling;
 use App\Http\Middleware\ResolveDefaultTenant;
-use App\Models\Exemplo;
 use App\Services\Tenancy\TenantContextService;
 use Illuminate\Support\Facades\Route;
 

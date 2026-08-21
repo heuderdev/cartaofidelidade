@@ -17,11 +17,8 @@ class TenantInvitationController extends Controller
         return view('TenantInvitation.index');
     }
 
-    public function accept(
-        Request $request,
-        TenantInvitation $invitation,
-        string $token
-    ): View|RedirectResponse {
+    public function accept(Request $request, TenantInvitation $invitation, string $token): View|RedirectResponse
+    {
         $this->ensureValidToken(
             $invitation,
             $token
@@ -40,10 +37,7 @@ class TenantInvitationController extends Controller
                 );
         }
 
-        $this->ensureInvitationEmailMatchesUser(
-            $invitation,
-            $request->user()
-        );
+        $this->ensureInvitationEmailMatchesUser($invitation, $request->user());
 
         return view('TenantInvitation.accept', [
             'invitation' => $invitation,
@@ -51,28 +45,16 @@ class TenantInvitationController extends Controller
         ]);
     }
 
-    public function confirm(
-        Request $request,
-        TenantInvitation $invitation,
-        string $token
-    ): RedirectResponse {
-        $this->ensureValidToken(
-            $invitation,
-            $token
-        );
+    public function confirm(Request $request, TenantInvitation $invitation, string $token): RedirectResponse
+    {
+        $this->ensureValidToken($invitation, $token);
 
         /** @var User $user */
         $user = $request->user();
 
-        $this->ensureInvitationEmailMatchesUser(
-            $invitation,
-            $user
-        );
+        $this->ensureInvitationEmailMatchesUser($invitation, $user);
 
-        DB::transaction(function () use (
-            $invitation,
-            $user
-        ): void {
+        DB::transaction(function () use ($invitation, $user): void {
             /*
              * Garante que o usuário entra no tenant sem remover
              * os vínculos que ele possa ter em outros tenants.
@@ -89,59 +71,25 @@ class TenantInvitationController extends Controller
              * Define o tenant aceito como padrão somente quando
              * o usuário ainda não tem tenant padrão.
              */
-            if (! $user->tenant_default_id) {
-                $user->forceFill([
-                    'tenant_default_id' => $invitation->tenant_id,
-                ])->save();
-            }
 
-            $invitation->forceFill([
-                'accepted_at' => now(),
-            ])->save();
+            $user->forceFill(['tenant_default_id' => $invitation->tenant_id])->save();
+
+            $invitation->forceFill(['accepted_at' => now()])->save();
         });
 
         return redirect()
             ->route('dashboard')
-            ->with(
-                'success',
-                sprintf(
-                    'Você entrou no tenant %s com sucesso.',
-                    $invitation->tenant->name
-                )
-            );
+            ->with('success', sprintf('Você entrou no tenant %s com sucesso.', $invitation->tenant->name));
     }
 
-    private function ensureValidToken(
-        TenantInvitation $invitation,
-        string $token
-    ): void {
-        abort_unless(
-            $invitation->isUsable(),
-            410,
-            'Este convite expirou, foi revogado ou já foi utilizado.'
-        );
-
-        abort_unless(
-            Hash::check(
-                $token,
-                $invitation->token_hash
-            ),
-            403,
-            'Token de convite inválido.'
-        );
+    private function ensureValidToken(TenantInvitation $invitation, string $token): void
+    {
+        abort_unless($invitation->isUsable(),  410,  'Este convite expirou, foi revogado ou já foi utilizado.');
+        abort_unless(Hash::check($token, $invitation->token_hash), 403, 'Token de convite inválido.');
     }
 
-    private function ensureInvitationEmailMatchesUser(
-        TenantInvitation $invitation,
-        User $user
-    ): void {
-        abort_unless(
-            strcasecmp(
-                $invitation->email,
-                $user->email
-            ) === 0,
-            403,
-            'Faça login com o mesmo e-mail que recebeu o convite.'
-        );
+    private function ensureInvitationEmailMatchesUser(TenantInvitation $invitation, User $user): void
+    {
+        abort_unless(strcasecmp($invitation->email, $user->email) === 0, 403, 'Faça login com o mesmo e-mail que recebeu o convite.');
     }
 }

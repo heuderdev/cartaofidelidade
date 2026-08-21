@@ -4,10 +4,8 @@ namespace App\Livewire\TenantInvitation;
 
 use App\Services\Tenancy\TenantContextService;
 use App\Services\TenantInvitation\CreateService;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.default')]
 class Create extends Component
 {
     public string $email = '';

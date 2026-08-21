@@ -29,6 +29,7 @@ class Tenant extends Model
         'locale',
         'billing_access_granted',
         'billing_access_granted_until',
+        'is_free'
     ];
 
     protected static function booted(): void
