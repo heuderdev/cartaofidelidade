@@ -1,16 +1,71 @@
+/*
+|--------------------------------------------------------------------------
+| Fontes
+|--------------------------------------------------------------------------
+| Os imports externos devem ficar antes do import do Tailwind.
+*/
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
 
+
+/*
+|--------------------------------------------------------------------------
+| Sources
+|--------------------------------------------------------------------------
+*/
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
+
+/*
+|--------------------------------------------------------------------------
+| Variantes
+|--------------------------------------------------------------------------
+*/
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
+/*
+|--------------------------------------------------------------------------
+| Tema
+|--------------------------------------------------------------------------
+*/
+@theme {
+    /*
+    |--------------------------------------------------------------------------
+    | Tipografia
+    |--------------------------------------------------------------------------
+    */
+    --font-sans:
+        'DM Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif,
+        'Apple Color Emoji',
+        'Segoe UI Emoji',
+        'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --font-serif:
+        'DM Serif Display',
+        Georgia,
+        serif;
+
+    --font-display:
+        'DM Serif Display',
+        Georgia,
+        serif;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cores zinc
+    |--------------------------------------------------------------------------
+    */
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
     --color-zinc-200: #e5e5e5;
@@ -23,11 +78,36 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Identidade Barber Club
+    |--------------------------------------------------------------------------
+    */
+    --color-barber-black: #171717;
+    --color-barber-brown: #30281e;
+    --color-barber-gold: #c99b5b;
+    --color-barber-gold-light: #e4bd83;
+    --color-barber-background: #f5f3ef;
+    --color-barber-border: #e5e0d8;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cores de interface
+    |--------------------------------------------------------------------------
+    */
     --color-accent: var(--color-neutral-800);
     --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Tema escuro
+|--------------------------------------------------------------------------
+*/
 @layer theme {
     .dark {
         --color-accent: var(--color-white);
@@ -36,8 +116,13 @@
     }
 }
 
-@layer base {
 
+/*
+|--------------------------------------------------------------------------
+| Base
+|--------------------------------------------------------------------------
+*/
+@layer base {
     *,
     ::after,
     ::before,
@@ -45,14 +130,48 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+
+    html {
+        font-family: var(--font-sans);
+    }
+
+    body {
+        font-family: var(--font-sans);
+        background-color: var(--color-barber-background);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .font-serif,
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    button,
+    a,
+    input,
+    textarea,
+    select {
+        font-family: var(--font-sans);
+    }
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Componentes Flux
+|--------------------------------------------------------------------------
+*/
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight;
 }
 
 input:focus[data-flux-control],
@@ -61,6 +180,30 @@ select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
 
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */
+
+/*
+|--------------------------------------------------------------------------
+| Componentes próprios
+|--------------------------------------------------------------------------
+*/
+@layer components {
+    .barber-card {
+        @apply rounded-2xl bg-white shadow-sm ring-1 ring-black/5;
+    }
+
+    .barber-button-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-barber-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800;
+    }
+
+    .barber-button-gold {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-barber-gold px-4 py-3 text-sm font-semibold text-barber-black transition hover:bg-barber-gold-light;
+    }
+
+    .barber-label {
+        @apply text-xs font-semibold uppercase tracking-[0.18em] text-gray-500;
+    }
+
+    .barber-title {
+        @apply font-display text-2xl font-bold text-barber-black;
+    }
+}

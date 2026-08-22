@@ -16,6 +16,9 @@ use App\Http\Middleware\ResolveDefaultTenant;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\Log;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -44,6 +47,15 @@ class AppServiceProvider extends ServiceProvider
 
         Cashier::useCustomerModel(Tenant::class);
         Cashier::useSubscriptionModel(Subscription::class);
+
+         DB::listen(function (QueryExecuted $query): void {
+            Log::debug('SQL executado', [
+                'sql' => $query->sql,
+                'bindings' => $query->bindings,
+                'time_ms' => $query->time,
+            ]);
+        });
+
         $this->configureDefaults();
     }
 

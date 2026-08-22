@@ -47,7 +47,8 @@ Route::middleware([
             "tenant" => $context->tenant()?->toArray(),
             "tenant_id" => $context->tenantId(),
             "role" => $context->role(),
-            "isSuperAdministrator" => $context->isSuperAdministrator()
+            "isSuperAdministrator" => $context->isSuperAdministrator(),
+            "customer" => $context->tenant()?->asStripeCustomer()->toArray()
 
         ]);
     })->name('teste');
@@ -57,6 +58,35 @@ Route::middleware([
     Route::post('/invitation/{invitation}/accept/{token}',[TenantInvitationController::class, 'confirm'])->middleware('auth')->name('tenant-invitation.confirm');
 });
 
+
+Route::middleware([
+    'auth',
+    ResolveDefaultTenant::class,
+])->group(function () {
+    Route::get('/teste-h', function () {
+        $context = app(TenantContextService::class);
+
+        $context->user();
+        $context->tenant()->isSubscribed();
+        $context->tenantId();
+        $context->role();
+        $context->isSuperAdministrator();
+
+        dd([
+            "user" => $context->user()->toArray(),
+            "tenant" => $context->tenant()?->subscribed(),
+            'subscription' =>  $context->tenant()?->subscriptions()->get()->toArray(),
+            "tenant_id" => $context->tenantId(),
+            "role" => $context->role(),
+            "isSuperAdministrator" => $context->isSuperAdministrator(),
+            "customer" => $context->tenant()?->asStripeCustomer()
+
+        ]);
+    })->name('teste-h');
+});
+
+
+
 Route::get("/new", function () {
    $tenant = App\Models\Tenant::findOrFail(4);
 
@@ -64,4 +94,13 @@ Route::get("/new", function () {
             'billing_access_granted' => true,
             'billing_access_granted_until' => null,
         ]);
+});
+
+
+Route::get("/cliente", function () {
+    return view('cliente');
+});
+
+Route::get("/cliente/new", function () {
+    return view('customers.create');
 });

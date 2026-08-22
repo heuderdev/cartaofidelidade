@@ -22,7 +22,7 @@ class EnsureTenantEmployeeHasActiveTenant
          * Este middleware somente controla funcionários.
          * Owner e super administrador seguem sem bloqueio aqui.
          */
-        if (! $this->context->hasRole('funcionario')) {
+        if (! $this->context->hasRole('employee')) {
             return $next($request);
         }
 

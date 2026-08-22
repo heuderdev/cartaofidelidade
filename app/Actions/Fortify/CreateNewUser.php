@@ -1,61 +1,59 @@
 <?php
 
-namespace App\Actions\Fortify;
+namespace Database\Seeders;
 
-use App\Concerns\PasswordValidationRules;
-use App\Concerns\ProfileValidationRules;
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Laravel\Fortify\Contracts\CreatesNewUsers;
 
-class CreateNewUser implements CreatesNewUsers
+class PlatformSeeder extends Seeder
 {
-    use PasswordValidationRules;
-    use ProfileValidationRules;
-
-    /**
-     * @param array<string, mixed> $input
-     */
-    public function create(array $input): User
+    public function run(): void
     {
-        Validator::make($input, [
-            ...$this->profileRules(),
-            'password' => $this->passwordRules(),
-        ])->validate();
-
-        return DB::transaction(function () use ($input): User {
-            $tenant = Tenant::create([
-                'uuid' => (string) Str::uuid(),
-                'name' => $input['name'],
-                'slug' => sprintf(
-                    '%s-%s',
-                    Str::slug($input['name']),
-                    Str::lower(Str::random(6))
-                ),
-                'type' => 'company',
+        $platform = Tenant::query()->firstOrCreate(
+            [
+                'type' => 'platform',
+            ],
+            [
+                'name' => 'Plataforma',
+                'slug' => 'platform',
                 'status' => 'active',
-                'timezone' => 'America/Sao_Paulo',
-                'locale' => 'pt_BR',
-            ]);
+            ]
+        );
 
-            $user = User::create([
-                'name' => $input['name'],
-                'email' => strtolower($input['email']),
-                'password' => Hash::make($input['password']),
-                'tenant_default_id' => $tenant->id,
-            ]);
+        $user = User::query()->firstOrCreate(
+            [
+                'email' => 'heuderdev@gmail.com',
+            ],
+            [
+                'name' => 'Administrador da Plataforma',
+                'password' => Hash::make('password'),
+                'tenant_default_id' => $platform->getKey(),
+            ]
+        );
 
-            $tenant->users()->attach($user->id, [
-                'role' => 'owner',
+        $user->tenants()->syncWithoutDetaching([
+            $platform->getKey() => [
+                'role' => 'super_administrador',
                 'status' => 'active',
                 'joined_at' => now(),
-            ]);
+            ],
+        ]);
 
-            return $user;
-        });
+        $user->forceFill([
+            'tenant_default_id' => $platform->getKey(),
+        ])->saveQuietly();
+
+        if (! $platform->hasStripeId()) {
+            $platform->createAsStripeCustomer([
+                'name' => $platform->name,
+                'email' => $user->email,
+                'metadata' => [
+                    'tenant_id' => (string) $platform->getKey(),
+                    'tenant_type' => $platform->type,
+                ],
+            ]);
+        }
     }
 }
